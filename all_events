@@ -1,0 +1,20 @@
+{%- macro artifact(type, value, description, properties=()) -%}
+    {"value": "{{ value }}",
+    "type": "{{ type }}",
+    "description": "{{ description }}",
+    "properties": [
+        {% for property in properties -%}
+        {"name": "{{ property.name }}",
+        "value": "{{ property.value }}"
+        }{% if not(loop.last) %},{% endif %}
+        {%- endfor %}
+    ]
+    }
+{%- endmacro %}
+
+{% for offense in event.offenses %}
+    {% set description = "QRadar Offense Source: " ~ offense.offense_type_name %}
+    {% if offense.offense_source is defined and offense.offense_source is not none %}
+        {{ artifact("Offense", offense.offense_source, description, properties=[{"name": "source", "value": "true"}]) }}
+    {% endif %}
+{% endfor %}
